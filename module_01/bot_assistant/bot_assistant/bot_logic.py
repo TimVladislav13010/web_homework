@@ -1,8 +1,9 @@
 from appdirs import AppDirs
-from bot_assistant.address_book_classes import AddressBook, AddressContact, Birthday, EmailContact, Phone, Record
+from module_01.bot_assistant.bot_assistant.address_book_classes import AddressBook, AddressContact, Birthday, EmailContact, Phone, Record
 from colorama import Fore, Style, init
-from bot_assistant.notes_classes import Notes, Note, Tag, Body
-from bot_assistant.sort import sort_fun
+from module_01.bot_assistant.bot_assistant.notes_classes import Notes, Note, Tag, Body
+from module_01.bot_assistant.bot_assistant.sort import sort_fun
+from module_01.bot_assistant.bot_assistant.bot_interface import AddressBookInterface, NoteInterface
 import os.path
 
 init()
@@ -33,6 +34,83 @@ def input_error(func):
             return result
 
     return inner
+
+
+####################################### PHONE_BOOK_CLASSES #################################################
+
+
+class AddressBookConsole(AddressBookInterface):
+    @staticmethod
+    @input_error
+    def show_contact(*args):
+        """
+        Метод виводить всі контакти в книзі. Якщо передано імя виведе данні по цьому контакту
+        """
+        separate = 30 * '-'
+        if args:
+            name = args[0].capitalize()
+            return f'{separate} \n{PHONE_BOOK.get(name, "no such name")} \n{separate}'
+
+        result = ''
+        for contact in PHONE_BOOK:
+            result += f'\n{PHONE_BOOK[contact]} \n{separate}'
+
+        return result
+
+    @staticmethod
+    def helps(*args):
+        """
+        Метод повертає список команд на які реагує бот.
+        """
+
+        commands = [
+            f'{Fore.GREEN}add{Style.RESET_ALL} - will adding new contact to you addressbook in format add: [Name][Phone]',
+            f'{Fore.GREEN}add phone{Style.RESET_ALL} - will adding phone to contact in format add: [Name] [Phone]',
+            f'{Fore.GREEN}add address{Style.RESET_ALL} - will adding new address to contact in format: [Name] [address]',
+            f'{Fore.GREEN}add email{Style.RESET_ALL} - will adding new address to contact in format: [Name] [email]',
+            f'{Fore.GREEN}add birthday{Style.RESET_ALL} - will adding new address to contact in format: [Name] [birthday]',
+            f'{Fore.GREEN}change address{Style.RESET_ALL} - will change address of you contact. format for change: [Name] [New address]',
+            f'{Fore.GREEN}change email{Style.RESET_ALL} - will change email of you contact. format for change: [Name] [New email]',
+            f'{Fore.GREEN}change phone{Style.RESET_ALL} - will change old phone with new value. format for change: [Name] [New phone]',
+            f'{Fore.GREEN}search contacts{Style.RESET_ALL} - will search all contacts by name or phone number. format: [searching text]',
+            f'{Fore.GREEN}show contact{Style.RESET_ALL} - will show all contacts. Show without name will show all contacts. format: [searching text]',
+            f'{Fore.GREEN}change birthday{Style.RESET_ALL} - will change contact Bday. format [name][new date]',
+            f'{Fore.GREEN}delete birthday{Style.RESET_ALL} - will delete contact Bday. format [name]',
+            f'{Fore.GREEN}delete contact{Style.RESET_ALL} - will delete contact. format [name]',
+            f'{Fore.GREEN}delete address{Style.RESET_ALL} - will delete address. format [name]',
+            f'{Fore.GREEN}delete email{Style.RESET_ALL} - will delete selected contact email. format [Name] [email]',
+            f'{Fore.GREEN}search birthday{Style.RESET_ALL} - will show you upcoming Bday in  "n" days. format [quantity of days]',
+            f'{Fore.GREEN}save{Style.RESET_ALL} - will save you addressbook and notes',
+            f'{Fore.GREEN}load{Style.RESET_ALL} - will load you addressbook and notes',
+            f'{Fore.GREEN}sort{Style.RESET_ALL} - will make magik and sort you files. Give only dir ;)',
+
+            f'{Fore.BLUE}add note{Style.RESET_ALL} - will adding new note',
+            f'{Fore.BLUE}del note{Style.RESET_ALL} - will delete note. format: [record number]',
+            f'{Fore.BLUE}change note{Style.RESET_ALL} - will changing note. format: [record number] [new text]',
+            f'{Fore.BLUE}change tag{Style.RESET_ALL} - will add or delete tag to you note',
+            f'{Fore.BLUE}show notes{Style.RESET_ALL} - will show you all notes',
+            f'{Fore.BLUE}sort notes{Style.RESET_ALL} - will show you note with sort. 1/-1 to asc/desc sorting',
+            f'{Fore.BLUE}search notes{Style.RESET_ALL} - will searching note for you by text',
+            f'{Fore.BLUE}search tag{Style.RESET_ALL} - will searching note for you by tag',
+
+            f'{Fore.RED}good_bye{Style.RESET_ALL} - for exit',
+        ]
+
+        return '\n'.join(commands)
+
+
+####################################### NOTE_CLASSES #################################################
+
+
+class NoteConsole(NoteInterface):
+    @staticmethod
+    def show_notes(*args):
+        """
+        Метод для відображення нотаток.
+        :param args:
+        :return:
+        """
+        return NOTES.get_notes()
 
 
 ####################################### PHONE_BOOK #################################################
@@ -287,24 +365,24 @@ def change_email(args):
 
     user_email = input("Введіть email: ")
     record.change_information(EmailContact(user_email), record.email_list)
-    return f" {user_email} was changed to {name}"
+    return f" {user_email} was changed to {name}:"
 
 
-@input_error
-def show_contact(args):
-    """
-    Функція виводить всі контакти в книзі. Якщо передано імя виведе данні по цьому контакту
-    """
-    separate = 30 * '-'
-    if args:
-        name = args[0].capitalize()
-        return f'{separate} \n{PHONE_BOOK.get(name, "no such name")} \n{separate}'
-
-    result = ''
-    for contact in PHONE_BOOK:
-        result += f'\n{PHONE_BOOK[contact]} \n{separate}'
-
-    return result
+# @input_error
+# def show_contact(args):
+#     """
+#     Функція виводить всі контакти в книзі. Якщо передано імя виведе данні по цьому контакту
+#     """
+#     separate = 30 * '-'
+#     if args:
+#         name = args[0].capitalize()
+#         return f'{separate} \n{PHONE_BOOK.get(name, "no such name")} \n{separate}'
+#
+#     result = ''
+#     for contact in PHONE_BOOK:
+#         result += f'\n{PHONE_BOOK[contact]} \n{separate}'
+#
+#     return result
 
 
 @input_error
@@ -314,14 +392,14 @@ def search_contacts(args):
     """
 
     if not args:
-        return show_contact(args)
+        return AddressBookInterface.show_contact(args)
 
     result = ""
     contacts = PHONE_BOOK.search_contacts(args)
 
     if contacts:
         for contact in contacts:
-            result += show_contact([contact.name.value]) +'\n'
+            result += AddressBookInterface.show_contact([contact.name.value]) +'\n'
         return result
      
     return f"no contacts with such request: {args[0]}"
@@ -451,45 +529,45 @@ def good_bye(*args):
     quit()
 
 
-def helps(*args):
-    """
-    Функція повертає список команд на які реагує бот.
-    """
-
-    commands = [
-        f'{Fore.GREEN}add{Style.RESET_ALL} - will adding new contact to you addressbook in format add: [Name][Phone]',
-        f'{Fore.GREEN}add phone{Style.RESET_ALL} - will adding phone to contact in format add: [Name] [Phone]',
-        f'{Fore.GREEN}add address{Style.RESET_ALL} - will adding new address to contact in format: [Name] [address]',
-        f'{Fore.GREEN}add email{Style.RESET_ALL} - will adding new address to contact in format: [Name] [email]',
-        f'{Fore.GREEN}add birthday{Style.RESET_ALL} - will adding new address to contact in format: [Name] [birthday]',
-        f'{Fore.GREEN}change address{Style.RESET_ALL} - will change address of you contact. format for change: [Name] [New address]',
-        f'{Fore.GREEN}change email{Style.RESET_ALL} - will change email of you contact. format for change: [Name] [New email]',
-        f'{Fore.GREEN}change phone{Style.RESET_ALL} - will change old phone with new value. format for change: [Name] [New phone]',
-        f'{Fore.GREEN}search contacts{Style.RESET_ALL} - will search all contacts by name or phone number. format: [searching text]',
-        f'{Fore.GREEN}show contact{Style.RESET_ALL} - will show all contacts. Show without name will show all contacts. format: [searching text]',
-        f'{Fore.GREEN}change birthday{Style.RESET_ALL} - will change contact Bday. format [name][new date]',
-        f'{Fore.GREEN}delete birthday{Style.RESET_ALL} - will delete contact Bday. format [name]',
-        f'{Fore.GREEN}delete contact{Style.RESET_ALL} - will delete contact. format [name]',
-        f'{Fore.GREEN}delete address{Style.RESET_ALL} - will delete address. format [name]',
-        f'{Fore.GREEN}delete email{Style.RESET_ALL} - will delete selected contact email. format [Name] [email]',
-        f'{Fore.GREEN}search birthday{Style.RESET_ALL} - will show you upcoming Bday in  "n" days. format [quantity of days]',
-        f'{Fore.GREEN}save{Style.RESET_ALL} - will save you addressbook and notes',
-        f'{Fore.GREEN}load{Style.RESET_ALL} - will load you addressbook and notes',
-        f'{Fore.GREEN}sort{Style.RESET_ALL} - will make magik and sort you files. Give only dir ;)',
-
-        f'{Fore.BLUE}add note{Style.RESET_ALL} - will adding new note',
-        f'{Fore.BLUE}del note{Style.RESET_ALL} - will delete note. format: [record number]',
-        f'{Fore.BLUE}change note{Style.RESET_ALL} - will changing note. format: [record number] [new text]',
-        f'{Fore.BLUE}change tag{Style.RESET_ALL} - will add or delete tag to you note',
-        f'{Fore.BLUE}show notes{Style.RESET_ALL} - will show you all notes',
-        f'{Fore.BLUE}sort notes{Style.RESET_ALL} - will show you note with sort. 1/-1 to asc/desc sorting',
-        f'{Fore.BLUE}search notes{Style.RESET_ALL} - will searching note for you by text',
-        f'{Fore.BLUE}search tag{Style.RESET_ALL} - will searching note for you by tag',
-
-        f'{Fore.RED}good_bye{Style.RESET_ALL} - for exit',
-        ]
-
-    return '\n'.join(commands)
+# def helps(*args):
+#     """
+#     Функція повертає список команд на які реагує бот.
+#     """
+#
+#     commands = [
+#         f'{Fore.GREEN}add{Style.RESET_ALL} - will adding new contact to you addressbook in format add: [Name][Phone]',
+#         f'{Fore.GREEN}add phone{Style.RESET_ALL} - will adding phone to contact in format add: [Name] [Phone]',
+#         f'{Fore.GREEN}add address{Style.RESET_ALL} - will adding new address to contact in format: [Name] [address]',
+#         f'{Fore.GREEN}add email{Style.RESET_ALL} - will adding new address to contact in format: [Name] [email]',
+#         f'{Fore.GREEN}add birthday{Style.RESET_ALL} - will adding new address to contact in format: [Name] [birthday]',
+#         f'{Fore.GREEN}change address{Style.RESET_ALL} - will change address of you contact. format for change: [Name] [New address]',
+#         f'{Fore.GREEN}change email{Style.RESET_ALL} - will change email of you contact. format for change: [Name] [New email]',
+#         f'{Fore.GREEN}change phone{Style.RESET_ALL} - will change old phone with new value. format for change: [Name] [New phone]',
+#         f'{Fore.GREEN}search contacts{Style.RESET_ALL} - will search all contacts by name or phone number. format: [searching text]',
+#         f'{Fore.GREEN}show contact{Style.RESET_ALL} - will show all contacts. Show without name will show all contacts. format: [searching text]',
+#         f'{Fore.GREEN}change birthday{Style.RESET_ALL} - will change contact Bday. format [name][new date]',
+#         f'{Fore.GREEN}delete birthday{Style.RESET_ALL} - will delete contact Bday. format [name]',
+#         f'{Fore.GREEN}delete contact{Style.RESET_ALL} - will delete contact. format [name]',
+#         f'{Fore.GREEN}delete address{Style.RESET_ALL} - will delete address. format [name]',
+#         f'{Fore.GREEN}delete email{Style.RESET_ALL} - will delete selected contact email. format [Name] [email]',
+#         f'{Fore.GREEN}search birthday{Style.RESET_ALL} - will show you upcoming Bday in  "n" days. format [quantity of days]',
+#         f'{Fore.GREEN}save{Style.RESET_ALL} - will save you addressbook and notes',
+#         f'{Fore.GREEN}load{Style.RESET_ALL} - will load you addressbook and notes',
+#         f'{Fore.GREEN}sort{Style.RESET_ALL} - will make magik and sort you files. Give only dir ;)',
+#
+#         f'{Fore.BLUE}add note{Style.RESET_ALL} - will adding new note',
+#         f'{Fore.BLUE}del note{Style.RESET_ALL} - will delete note. format: [record number]',
+#         f'{Fore.BLUE}change note{Style.RESET_ALL} - will changing note. format: [record number] [new text]',
+#         f'{Fore.BLUE}change tag{Style.RESET_ALL} - will add or delete tag to you note',
+#         f'{Fore.BLUE}show notes{Style.RESET_ALL} - will show you all notes',
+#         f'{Fore.BLUE}sort notes{Style.RESET_ALL} - will show you note with sort. 1/-1 to asc/desc sorting',
+#         f'{Fore.BLUE}search notes{Style.RESET_ALL} - will searching note for you by text',
+#         f'{Fore.BLUE}search tag{Style.RESET_ALL} - will searching note for you by tag',
+#
+#         f'{Fore.RED}good_bye{Style.RESET_ALL} - for exit',
+#         ]
+#
+#     return '\n'.join(commands)
 
 
 def break_f(*args):
@@ -628,8 +706,8 @@ def sort_notes(args):
         return NOTES.sort_notes()
 
 
-def show_notes(args):
-    return NOTES.get_notes()
+# def show_notes(*args):
+#     return NOTES.get_notes()
 
 
 @input_error
@@ -700,46 +778,6 @@ def load(*args):
         PHONE_BOOK = AddressBook(PHONE_BOOK.load_data(path_addressbook))
 
     return f"{Fore.RED}data loaded from {DIRS.user_data_dir}{Style.RESET_ALL}"
-
-
-# def parser(text):
-#     """
-#     Функція формує кортеж із назви функції і аргументів для неї.
-#     """
-
-#     if text:
-#         normalise_text = text.replace(
-#             "good bye", "good_bye").replace("show all", "show_all").replace("upcoming birthday", "upcoming_birthday") \
-#             .replace("add address", "add_address").replace("add birthday", "add_birthday") \
-#             .replace("add bd", "add_birthday").replace("add bday", "add_birthday") \
-#             .replace("search contacts", "search_contacts").replace("add phone", "add_phone") \
-#             .replace("change phone", "change_phone").replace("change phones", "change_phone") \
-#             .replace("change address", "change_address").replace("change adr", "change_address") \
-#             .replace("delete phone", "delete_phone").replace("del phone", "delete_phone") \
-#             .replace("add note", "add_note").replace("del note", "del_note").replace("delete note", "del_note") \
-#             .replace("change note", "change_note").replace("change tag", "change_tag") \
-#             .replace("sort notes", "sort_notes").replace("search notes", "search_notes").replace("search note",
-#                                                                                                  "search_notes") \
-#             .replace("search tag", "search_tag").replace("search tags", "search_tag").replace("show notes",
-#                                                                                               "show_notes") \
-#             .replace("del birthday", "del_birthday").replace("delete birthday", "del_birthday").replace("del bd",
-#                                                                                                         "del_birthday") \
-#             .replace("delete bd", "del_birthday").replace("delete bday", "del_birthday").replace("del bday",
-#                                                                                                  "del_birthday") \
-#             .replace("add email", "add_email").replace("change email", "change_email").replace("delete email",
-#                                                                                                "delete_email") \
-#             .replace("search birthday", "search_birthday").replace("search bd", "search_birthday") \
-#             .replace("show contact", "show_contact").replace("show contacts", "show_contact") \
-#             .replace("delete contact", "delete_contact").replace("del contact", "delete_contact") \
-#             .replace("delete address", "delete_address").replace("del address", "delete_address") \
-#             .replace("save", "save").replace("load", "load") \
-#             .replace("change birthday", "change_birthday").replace("change bd", "change_birthday").replace(
-#             "change bday", "change_birthday")
-
-#         # формуємо кортеж із назви функції і аргументів для неї
-#         return normalise_text.split()[0], normalise_text.split()[1:]
-
-##############################################################################################################################
 
 
 def levinstein(str_1, str_2):
@@ -816,8 +854,8 @@ def fun_name(fun):
     """
 
     fun_dict = {
-        "hello": helps,
-        "help": helps,
+        "hello": AddressBookConsole.helps,
+        "help": AddressBookConsole.helps,
         "good bye": good_bye,
         "close": good_bye,
         "exit": good_bye,
@@ -845,7 +883,7 @@ def fun_name(fun):
         "change note": change_note,
         "change tag": change_tag,
         "sort notes": sort_notes,
-        "show notes": show_notes,
+        "show notes": NoteConsole.show_notes,
         "search notes": search_notes,
         "search tag": search_tag,
         "save": save,
@@ -853,7 +891,7 @@ def fun_name(fun):
         "change phone": change_phone,
         "delete phone": delete_phone,
         "del phone": delete_phone,
-        "show contact": show_contact,
+        "show contact": AddressBookConsole.show_contact,
         "add email": add_email,
         "change email": change_email,
         "delete email": delete_email,
@@ -863,7 +901,6 @@ def fun_name(fun):
         "del contact": delete_contact,
         "delete address": delete_address,
         "del address": delete_address
-
     }
 
     return fun_dict.get(fun, break_f)
